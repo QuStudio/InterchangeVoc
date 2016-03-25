@@ -1,45 +1,40 @@
 import InterchangeData
 import Vocabulaire
 
-struct MorphemeType {
-	static let general = "general"
-	static let caseSensitive = "case-sensitive"
+extension Morpheme.Kind: InterchangeDataRepresentable {
+	public var interchangeData: InterchangeData {
+		switch self {
+		case .General:
+			return InterchangeData.from("general")
+		case .CaseSensitive:
+			return InterchangeData.from("case-sensitive")
+		}
+	}
+	public init?(interchangeData: InterchangeData) {
+		guard let raw = interchangeData.string else { return nil }
+		switch raw {
+		case "general":
+			self = .General
+		case "case-sensitive":
+			self = .CaseSensitive
+		default:
+			return nil
+		}
+	}
 }
 
-extension GeneralMorpheme: InterchangeDataRepresentable {
-
+extension Morpheme: InterchangeDataRepresentable {
 	public var interchangeData: InterchangeData {
-		let interchange: InterchangeData = [
+		let data: InterchangeData = [
 			"value": InterchangeData.from(view),
-			"type": InterchangeData.from(MorphemeType.general)
+			"type": type.interchangeData
 		]
-		return interchange
+		return data
 	}
-
 	public init?(interchangeData: InterchangeData) {
 		guard let value = interchangeData["value"]?.string,
-			type = interchangeData["type"]?.string where type == MorphemeType.general
+			type = interchangeData["type"].flatMap({ Kind(interchangeData: $0) })
 			else { return nil }
-		self.init(value)
+		self.init(value, type: type)
 	}
-
-}
-
-extension CaseSensitiveMorpheme: InterchangeDataRepresentable {
-
-	public var interchangeData: InterchangeData {
-		let interchange: InterchangeData = [
-			"value": InterchangeData.from(view),
-			"type": InterchangeData.from(MorphemeType.caseSensitive)
-		]
-		return interchange
-	}
-
-	public init?(interchangeData: InterchangeData) {
-		guard let value = interchangeData["value"]?.string,
-			type = interchangeData["type"]?.string where type == MorphemeType.caseSensitive
-			else { return nil }
-		self.init(value)
-	}
-
 }
