@@ -21,10 +21,9 @@ extension NativeLexeme: InterchangeDataRepresentable {
 	// 	self.usage = usage
 	// }
 	public init(map: Mapper) throws {
-		try self.lemma = map.from("lemma")
-		try self.meaning = map.from("meaning")
-		let rawUsage: Int = try map.from("usage")
-		try self.usage = unwrap(Usage(rawValue: rawUsage))
+		try lemma = map.from("lemma")
+		try meaning = map.from("meaning")
+		try usage = map.from("usage")
 	}
 }
 
@@ -57,7 +56,6 @@ extension ForeignLexeme: InterchangeDataRepresentable {
 		try forms = map.fromArray("forms")
 		try origin = map.from("origin")
 		try meaning = map.from("meaning")
-		let rawPermissibility: Int = try map.from("permissibility")
-		try permissibility = unwrap(Permissibility(rawValue: rawPermissibility))
+		try permissibility = map.from("permissibility")
 	}
 }
