@@ -51,7 +51,7 @@ extension Morpheme: InterchangeDataConvertible, Mappable {
 	// }
 	public init(map: Mapper) throws {
 		let value: String = try map.from("value")
-		let type: Kind = try map.from("type")
+		let type: Kind = map.optionalFrom("type") ?? .General
 		self.init(value, type: type)
 	}
 }
