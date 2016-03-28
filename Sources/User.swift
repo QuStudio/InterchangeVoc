@@ -28,7 +28,7 @@ extension User: InterchangeDataRepresentable {
 		let data: InterchangeData = [
 			"id": InterchangeData.from(id),
 			"username": InterchangeData.from(username),
-			"status": status.interchangeData
+			"status": InterchangeData.from(status.rawValue)
 		]
 		return data
 	}
