@@ -56,8 +56,7 @@ extension ClientEntryProposal: InterchangeDataRepresentable {
 		try foreign = map.from("foreign")
 		try native = map.from("native")
 		try rationale = map.from("rationale")
-		let rawPostedAt: Double = try map.from("posted-at")
-		postedAt = NSDate(timeIntervalSince1970: rawPostedAt)
+		try postedAt = map.from("posted-at")
 	}
 
 	private init(proposal: EntryProposal) {
