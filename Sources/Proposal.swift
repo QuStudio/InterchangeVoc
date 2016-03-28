@@ -1,6 +1,7 @@
 import InterchangeData
 import Vocabulaire
 import Foundation
+import Topo
 
 extension NativesProposal: InterchangeDataRepresentable {
 	public var interchangeData: InterchangeData {
@@ -15,10 +16,14 @@ extension NativesProposal: InterchangeDataRepresentable {
 		]
 		return data
 	}
-	public init?(interchangeData: InterchangeData) {
-		guard let main = interchangeData["main"].flatMap(Morpheme.init) else { return nil }
-		self.main = main
-		self.alternatives = interchangeData["alternatives"]?.array?.flatMap(Morpheme.init)
+	// public init?(interchangeData: InterchangeData) {
+	// 	guard let main = interchangeData["main"].flatMap(Morpheme.init) else { return nil }
+	// 	self.main = main
+	// 	self.alternatives = interchangeData["alternatives"]?.array?.flatMap(Morpheme.init)
+	// }
+	public init(map: Mapper) throws {
+		try main = map.from("main")
+		alternatives = map.optionalFromArray("alternatives")
 	}
 }
 
@@ -33,26 +38,34 @@ extension ClientEntryProposal: InterchangeDataRepresentable {
 		]
 		return data
 	}
-	public init?(interchangeData: InterchangeData) {
-		guard let author = interchangeData["author"].flatMap(User.init),
-			foreign = interchangeData["foreign"].flatMap(Morpheme.init),
-			native = interchangeData["native"].flatMap(NativesProposal.init),
-			rationale = interchangeData["rationale"]?.string,
-			postedAt = interchangeData["posted-at"]?.double.flatMap({ NSDate(timeIntervalSince1970: $0) })
-			else { return nil }
-		self.author = author
-		self.foreign = foreign
-		self.native = native
-		self.rationale = rationale
-		self.postedAt = postedAt
+	// public init?(interchangeData: InterchangeData) {
+	// 	guard let author = interchangeData["author"].flatMap(User.init),
+	// 		foreign = interchangeData["foreign"].flatMap(Morpheme.init),
+	// 		native = interchangeData["native"].flatMap(NativesProposal.init),
+	// 		rationale = interchangeData["rationale"]?.string,
+	// 		postedAt = interchangeData["posted-at"]?.double.flatMap({ NSDate(timeIntervalSince1970: $0) })
+	// 		else { return nil }
+	// 	self.author = author
+	// 	self.foreign = foreign
+	// 	self.native = native
+	// 	self.rationale = rationale
+	// 	self.postedAt = postedAt
+	// }
+	public init(map: Mapper) throws {
+		try author = map.from("author")
+		try foreign = map.from("foreign")
+		try native = map.from("native")
+		try rationale = map.from("rationale")
+		let rawPostedAt: Double = try map.from("posted-at")
+		postedAt = NSDate(timeIntervalSince1970: rawPostedAt)
 	}
 
-	private init(serverProposal: ServerEntryProposal) {
-		self.author = serverProposal.author
-		self.foreign = serverProposal.foreign
-		self.native = serverProposal.native
-		self.rationale = serverProposal.rationale
-		self.postedAt = serverProposal.postedAt
+	private init(proposal: EntryProposal) {
+		self.author = proposal.author
+		self.foreign = proposal.foreign
+		self.native = proposal.native
+		self.rationale = proposal.rationale
+		self.postedAt = proposal.postedAt
 	}
 }
 
@@ -87,14 +100,16 @@ extension ServerEntryProposal.Status: InterchangeDataRepresentable {
 			return data(withStatus: "awaiting")
 		}
 	}
-	public init?(interchangeData: InterchangeData) {
-		guard let label = interchangeData["status"]?.string else { return nil }
+	public init(map: Mapper) throws {
+		let label: String = try map.from("status")
 		switch label {
 		case "accepted-with-changes":
-			guard let changes = interchangeData["changes"]?.string else { return nil }
+			let changes: String = try map.from("changes")
+			// guard let changes = interchangeData["changes"]?.string else { return nil }
 			self = .AcceptedWithChanges(changes: changes)
 		case "rejected":
-			guard let rationale = interchangeData["rationale"]?.string else { return nil }
+			let rationale: String = try map.from("rationale")
+			// guard let rationale = interchangeData["rationale"]?.string else { return nil }
 			self = .Rejected(rationale: rationale)
 		case "implemented":
 			self = .Implemented
@@ -105,14 +120,14 @@ extension ServerEntryProposal.Status: InterchangeDataRepresentable {
 		case "awaiting":
 			self = .Awaiting
 		default:
-			return nil
+			throw Mapper.Error.CantInitFromRawValue
 		}
 	}
 }
 
 extension ServerEntryProposal: InterchangeDataRepresentable {
 	public var interchangeData: InterchangeData {
-		let baseData = ClientEntryProposal(serverProposal: self).interchangeData
+		let baseData = ClientEntryProposal(proposal: self).interchangeData
 		let extData: InterchangeData = [
 			"base": baseData,
 			"id": InterchangeData.from(id),
@@ -120,11 +135,17 @@ extension ServerEntryProposal: InterchangeDataRepresentable {
 		]
 		return extData
 	}
-	public init?(interchangeData: InterchangeData) {
-		guard let clientProposal = interchangeData["base"].flatMap(ClientEntryProposal.init),
-			id = interchangeData["id"]?.int,
-			status = interchangeData["status"].flatMap(Status.init)
-			else { return nil }
-		self.init(clientProposal: clientProposal, id: id, status: status)
+	// public init?(interchangeData: InterchangeData) {
+	// 	guard let clientProposal = interchangeData["base"].flatMap(ClientEntryProposal.init),
+	// 		id = interchangeData["id"]?.int,
+	// 		status = interchangeData["status"].flatMap(Status.init)
+	// 		else { return nil }
+	// 	self.init(clientProposal: clientProposal, id: id, status: status)
+	// }
+	public init(map: Mapper) throws {
+		let clientProposal: ClientEntryProposal = try map.from("base")
+		let id: Int = try map.from("id")
+		let status: Status = try map.from("status")
+		self.init(clientProposal: clientProposal, id: id, status: status)	
 	}
 }
