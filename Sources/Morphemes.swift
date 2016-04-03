@@ -23,34 +23,17 @@ extension Morpheme.Kind: RawRepresentable {
 	}
 }
 
-// extension Morpheme.Kind: InterchangeDataConvertible {
-// 	public var interchangeData: InterchangeData {
-// 		switch self {
-// 		case .General:
-// 			return InterchangeData.from("general")
-// 		case .CaseSensitive:
-// 			return InterchangeData.from("case-sensitive")
-// 		}
-// 	}
-// 	// public init
-// }
-
 extension Morpheme: InterchangeDataConvertible, Mappable {
 	public var interchangeData: InterchangeData {
 		let data: InterchangeData = [
-			"value": InterchangeData.from(view),
+			"string": InterchangeData.from(view),
 			"type": InterchangeData.from(type.rawValue)
 		]
 		return data
 	}
-	// public init?(interchangeData: InterchangeData) {
-	// 	guard let value = interchangeData["value"]?.string,
-	// 		type = interchangeData["type"].flatMap({ Kind(interchangeData: $0) })
-	// 		else { return nil }
-	// 	self.init(value, type: type)
-	// }
+
 	public init(map: Mapper) throws {
-		let value: String = try map.from("value")
+		let value: String = try map.from("string")
 		let type: Kind = map.optionalFrom("type") ?? .General
 		self.init(value, type: type)
 	}
