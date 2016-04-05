@@ -32,15 +32,6 @@ extension User: InterchangeDataRepresentable {
 		]
 		return data
 	}
-	// public init?(interchangeData: InterchangeData) {
-	// 	guard let id = interchangeData["id"]?.int,
-	// 		username = interchangeData["username"]?.string,
-	// 		status = interchangeData["status"].flatMap({ Status(interchangeData: $0) })
-	// 		else { return nil }
-	// 	self.id = id
-	// 	self.username = username
-	// 	self.status = status
-	// }
 	public init(map: Mapper) throws {
 		try id = map.from("id")
 		try username = map.from("username")

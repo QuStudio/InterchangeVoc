@@ -16,11 +16,6 @@ extension NativesProposal: InterchangeDataRepresentable {
 		]
 		return data
 	}
-	// public init?(interchangeData: InterchangeData) {
-	// 	guard let main = interchangeData["main"].flatMap(Morpheme.init) else { return nil }
-	// 	self.main = main
-	// 	self.alternatives = interchangeData["alternatives"]?.array?.flatMap(Morpheme.init)
-	// }
 	public init(map: Mapper) throws {
 		try main = map.from("main")
 		alternatives = map.optionalFromArray("alternatives")
@@ -38,19 +33,6 @@ extension ClientEntryProposal: InterchangeDataRepresentable {
 		]
 		return data
 	}
-	// public init?(interchangeData: InterchangeData) {
-	// 	guard let author = interchangeData["author"].flatMap(User.init),
-	// 		foreign = interchangeData["foreign"].flatMap(Morpheme.init),
-	// 		native = interchangeData["native"].flatMap(NativesProposal.init),
-	// 		rationale = interchangeData["rationale"]?.string,
-	// 		postedAt = interchangeData["posted-at"]?.double.flatMap({ NSDate(timeIntervalSince1970: $0) })
-	// 		else { return nil }
-	// 	self.author = author
-	// 	self.foreign = foreign
-	// 	self.native = native
-	// 	self.rationale = rationale
-	// 	self.postedAt = postedAt
-	// }
 	public init(map: Mapper) throws {
 		try author = map.from("author")
 		try foreign = map.from("foreign")
@@ -134,13 +116,6 @@ extension ServerEntryProposal: InterchangeDataRepresentable {
 		]
 		return extData
 	}
-	// public init?(interchangeData: InterchangeData) {
-	// 	guard let clientProposal = interchangeData["base"].flatMap(ClientEntryProposal.init),
-	// 		id = interchangeData["id"]?.int,
-	// 		status = interchangeData["status"].flatMap(Status.init)
-	// 		else { return nil }
-	// 	self.init(clientProposal: clientProposal, id: id, status: status)
-	// }
 	public init(map: Mapper) throws {
 		let clientProposal: ClientEntryProposal = try map.from("base")
 		let id: Int = try map.from("id")
