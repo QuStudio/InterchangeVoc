@@ -1,44 +1,48 @@
-import InterchangeData
 import Vocabulaire
 import Foundation
-import Topo
+import Mapper
 
-extension NativesProposal: InterchangeDataRepresentable {
-	public var interchangeData: InterchangeData {
-		let data: InterchangeData = [
-			"main": main.interchangeData,
+extension NativesProposal: StructuredDataRepresentable, Mappable {
+	public var structuredData: StructuredData {
+		let data: StructuredData = [
+			"main": main.structuredData,
 			"alternatives": { 
-				if let alternativesData = alternatives?.map({ $0.interchangeData }) {
-					return InterchangeData.from(alternativesData)
+				if let alternativesData = alternatives?.map({ $0.structuredData }) {
+					return StructuredData.from(alternativesData)
 				}
-				return InterchangeData.NullValue
+				return .nullValue
 			}()
 		]
 		return data
 	}
-	public init(map: Mapper) throws {
-		try main = map.from("main")
-		alternatives = map.optionalFromArray("alternatives")
+	public init(mapper: Mapper) throws {
+        main = try mapper.map(from: "main")
+        alternatives = mapper.map(optionalArrayFrom: "alternatives")
 	}
 }
 
-extension ClientEntryProposal: InterchangeDataRepresentable {
-	public var interchangeData: InterchangeData {
-		let data: InterchangeData = [
-			"author": author.interchangeData,
-			"foreign": foreign.interchangeData,
-			"native": native.interchangeData,
-			"rationale": InterchangeData.from(rationale),
-			"posted-at": InterchangeData.from(postedAt.timeIntervalSince1970)
+extension ClientEntryProposal: StructuredDataRepresentable, Mappable {
+	public var structuredData: StructuredData {
+		let data: StructuredData = [
+			"author": author.structuredData,
+			"foreign": foreign.structuredData,
+			"native": native.structuredData,
+			"rationale": StructuredData.from(rationale),
+			"posted-at": StructuredData.from(postedAt.timeIntervalSince1970)
 		]
 		return data
 	}
-	public init(map: Mapper) throws {
-		try author = map.from("author")
-		try foreign = map.from("foreign")
-		try native = map.from("native")
-		try rationale = map.from("rationale")
-		try postedAt = map.from("posted-at")
+	public init(mapper: Mapper) throws {
+//		try author = map.from("author")
+//		try foreign = map.from("foreign")
+//		try native = map.from("native")
+//		try rationale = map.from("rationale")
+//		try postedAt = map.from("posted-at")
+        author = try mapper.map(from: "author")
+        foreign = try mapper.map(from: "foreign")
+        native = try mapper.map(from: "native")
+        rationale = try mapper.map(from: "rationale")
+        postedAt = try mapper.map(from: "posted-at")
 	}
 
 	private init(proposal: EntryProposal) {
@@ -50,25 +54,25 @@ extension ClientEntryProposal: InterchangeDataRepresentable {
 	}
 }
 
-extension ServerEntryProposal.Status: InterchangeDataRepresentable {
-	public var interchangeData: InterchangeData {
-		func data(withStatus label: String) -> InterchangeData {
-			let data: InterchangeData = [
-				"status": InterchangeData.from(label)
+extension ServerEntryProposal.Status: StructuredDataRepresentable, Mappable {
+	public var structuredData: StructuredData {
+		func data(withStatus label: String) -> StructuredData {
+			let data: StructuredData = [
+				"status": StructuredData.from(label)
 			]
 			return data
 		}
 		switch self {
 		case .AcceptedWithChanges(let changes):
-			let data: InterchangeData = [
-				"status": InterchangeData.from("accepted-with-changes"),
-				"changes": InterchangeData.from(changes)
+			let data: StructuredData = [
+				"status": StructuredData.from("accepted-with-changes"),
+				"changes": StructuredData.from(changes)
 			]
 			return data
 		case .Rejected(let rationale):
-			let data: InterchangeData = [
-				"status": InterchangeData.from("rejected"),
-				"rationale": InterchangeData.from(rationale)
+			let data: StructuredData = [
+				"status": StructuredData.from("rejected"),
+				"rationale": StructuredData.from(rationale)
 			]
 			return data
 		case .Implemented:
@@ -81,16 +85,14 @@ extension ServerEntryProposal.Status: InterchangeDataRepresentable {
 			return data(withStatus: "awaiting")
 		}
 	}
-	public init(map: Mapper) throws {
-		let label: String = try map.from("status")
+	public init(mapper: Mapper) throws {
+        let label: String = try mapper.map(from: "status")
 		switch label {
 		case "accepted-with-changes":
-			let changes: String = try map.from("changes")
-			// guard let changes = interchangeData["changes"]?.string else { return nil }
+            let changes: String = try mapper.map(from: "changes")
 			self = .AcceptedWithChanges(changes: changes)
 		case "rejected":
-			let rationale: String = try map.from("rationale")
-			// guard let rationale = interchangeData["rationale"]?.string else { return nil }
+			let rationale: String = try mapper.map(from: "rationale")
 			self = .Rejected(rationale: rationale)
 		case "implemented":
 			self = .Implemented
@@ -101,25 +103,25 @@ extension ServerEntryProposal.Status: InterchangeDataRepresentable {
 		case "awaiting":
 			self = .Awaiting
 		default:
-			throw Mapper.Error.CantInitFromRawValue
+			throw Mapper.Error.cantInitFromRawValue
 		}
 	}
 }
 
-extension ServerEntryProposal: InterchangeDataRepresentable {
-	public var interchangeData: InterchangeData {
-		let baseData = ClientEntryProposal(proposal: self).interchangeData
-		let extData: InterchangeData = [
+extension ServerEntryProposal: StructuredDataRepresentable {
+	public var structuredData: StructuredData {
+		let baseData = ClientEntryProposal(proposal: self).structuredData
+		let extData: StructuredData = [
 			"base": baseData,
-			"id": InterchangeData.from(id),
-			"status": status.interchangeData
+			"id": StructuredData.from(id),
+			"status": status.structuredData
 		]
 		return extData
 	}
-	public init(map: Mapper) throws {
-		let clientProposal: ClientEntryProposal = try map.from("base")
-		let id: Int = try map.from("id")
-		let status: Status = try map.from("status")
+	public init(mapper: Mapper) throws {
+		let clientProposal: ClientEntryProposal = try mapper.map(from: "base")
+		let id: Int = try mapper.map(from: "id")
+		let status: Status = try mapper.map(from: "status")
 		self.init(clientProposal: clientProposal, id: id, status: status)	
 	}
 }

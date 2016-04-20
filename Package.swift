@@ -1,10 +1,9 @@
 import PackageDescription
 
 let package = Package(
-    name: "InterchangeVoc",
+    name: "StructuredVoc",
     dependencies: [
-    	.Package(url: "https://github.com/QuStudio/Vocabulaire.git", majorVersion: 0, minor: 2),
-//    	.Package(url: "https://github.com/Zewo/InterchangeData.git", majorVersion: 0, minor: 2),
-    	.Package(url: "https://github.com/Zewo/InterchangeDataMapper.git", majorVersion: 0, minor: 3)
+    	.Package(url: "https://github.com/QuStudio/Vocabulaire.git", majorVersion: 0, minor: 3),
+    	.Package(url: "https://github.com/Zewo/Mapper.git", majorVersion: 0, minor: 5),
     ]
 )

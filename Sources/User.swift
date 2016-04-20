@@ -1,40 +1,39 @@
-import InterchangeData
 import Vocabulaire
-import Topo
+import Mapper
 
 extension User.Status: RawRepresentable {
 	public var rawValue: String {
 		switch self {
-		case .Regular:
+		case .regular:
 			return "regular"
-		case .BoardMember:
+		case .boardMember:
 			return "board-member"
 		}
 	}
 	public init?(rawValue: String) {
 		switch rawValue {
 		case "regular":
-			self = .Regular
+			self = .regular
 		case "board-member":
-			self = .BoardMember
+			self = .boardMember
 		default:
 			return nil
 		}
 	}
 }
 
-extension User: InterchangeDataRepresentable {
-	public var interchangeData: InterchangeData {
-		let data: InterchangeData = [
-			"id": InterchangeData.from(id),
-			"username": InterchangeData.from(username),
-			"status": InterchangeData.from(status.rawValue)
+extension User: StructuredDataRepresentable, Mappable {
+	public var structuredData: StructuredData {
+		let data: StructuredData = [
+			"id": StructuredData.from(id),
+			"username": StructuredData.from(username),
+			"status": StructuredData.from(status.rawValue)
 		]
 		return data
 	}
-	public init(map: Mapper) throws {
-		try id = map.from("id")
-		try username = map.from("username")
-		try status = map.from("status")
+	public init(mapper: Mapper) throws {
+        id = try mapper.map(from: "id")
+        username = try mapper.map(from: "username")
+        status = try mapper.map(from: "status")
 	}
 }

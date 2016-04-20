@@ -1,25 +1,24 @@
-import InterchangeData
 import Vocabulaire
-import Topo
+import Mapper
 
-extension Entry: InterchangeDataRepresentable {
-	public var interchangeData: InterchangeData {
-		let data: InterchangeData = [
-			"id": InterchangeData.from(id),
-			"foreign": foreign.interchangeData,
-			"natives": InterchangeData.from(natives.map({ $0.interchangeData })),
-			"author": author?.interchangeData ?? InterchangeData.NullValue
+extension Entry: StructuredDataRepresentable, Mappable {
+	public var structuredData: StructuredData {
+		let data: StructuredData = [
+			"id": StructuredData.from(id),
+			"foreign": foreign.structuredData,
+			"natives": StructuredData.from(natives.map({ $0.structuredData })),
+			"author": author?.structuredData ?? .nullValue
 		]
 		return data
 	}
-	public init(map: Mapper) throws {
-		try id = map.from("id")
-		try foreign = map.from("foreign")
-		try natives = Set(map.fromArray("natives"))
-		author = map.optionalFrom("author")
+	public init(mapper: Mapper) throws {
+        id = try mapper.map(from: "id")
+        foreign = try mapper.map(from: "foreign")
+        natives = try Set(mapper.map(arrayFrom: "natives"))
+        author = mapper.map(optionalFrom: "author")
 	}
 }
 
-func shareVocabulary(vocabulary: Vocabulary) -> InterchangeData {
-	return InterchangeData.from(vocabulary.map({ $0.interchangeData }))
+func shareVocabulary(vocabulary: Vocabulary) -> StructuredData {
+	return StructuredData.from(vocabulary.map({ $0.structuredData }))
 }
