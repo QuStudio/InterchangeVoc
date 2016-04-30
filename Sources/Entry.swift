@@ -35,7 +35,7 @@ extension VocabularyVersion: StructuredDataRepresentable, Mappable {
 	}
 }
 
-func shareVocabulary(vocabulary: Vocabulary, with version: VocabularyVersion) -> StructuredData {
+public func shareVocabulary(vocabulary: Vocabulary, with version: VocabularyVersion) -> StructuredData {
 	let data: StructuredData = [
 		"version": version.structuredData,
 		"entries": .from(vocabulary.map({ $0.structuredData }))
