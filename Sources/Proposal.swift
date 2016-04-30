@@ -63,25 +63,25 @@ extension ServerEntryProposal.Status: StructuredDataRepresentable, Mappable {
 			return data
 		}
 		switch self {
-		case .AcceptedWithChanges(let changes):
+		case .acceptedWithChanges(let changes):
 			let data: StructuredData = [
 				"status": StructuredData.from("accepted-with-changes"),
 				"changes": StructuredData.from(changes)
 			]
 			return data
-		case .Rejected(let rationale):
+		case .rejected(let rationale):
 			let data: StructuredData = [
 				"status": StructuredData.from("rejected"),
 				"rationale": StructuredData.from(rationale)
 			]
 			return data
-		case .Implemented:
+		case .implemented:
 			return data(withStatus: "implemented")
-		case .Accepted:
+		case .accepted:
 			return data(withStatus: "accepted")
-		case .UnderReview:
+		case .underReview:
 			return data(withStatus: "under-review")
-		case .Awaiting:
+		case .awaiting:
 			return data(withStatus: "awaiting")
 		}
 	}
@@ -90,18 +90,18 @@ extension ServerEntryProposal.Status: StructuredDataRepresentable, Mappable {
 		switch label {
 		case "accepted-with-changes":
             let changes: String = try mapper.map(from: "changes")
-			self = .AcceptedWithChanges(changes: changes)
+			self = .acceptedWithChanges(changes: changes)
 		case "rejected":
 			let rationale: String = try mapper.map(from: "rationale")
-			self = .Rejected(rationale: rationale)
+			self = .rejected(rationale: rationale)
 		case "implemented":
-			self = .Implemented
+			self = .implemented
 		case "accepted":
-			self = .Accepted
+			self = .accepted
 		case "under-review":
-			self = .UnderReview
+			self = .underReview
 		case "awaiting":
-			self = .Awaiting
+			self = .awaiting
 		default:
 			throw Mapper.Error.cantInitFromRawValue
 		}
@@ -122,6 +122,6 @@ extension ServerEntryProposal: StructuredDataRepresentable {
 		let clientProposal: ClientEntryProposal = try mapper.map(from: "base")
 		let id: Int = try mapper.map(from: "id")
 		let status: Status = try mapper.map(from: "status")
-		self.init(clientProposal: clientProposal, id: id, status: status)	
+		self.init(clientProposal: clientProposal, id: id, status: status)
 	}
 }
